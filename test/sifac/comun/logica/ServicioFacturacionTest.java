@@ -10,7 +10,7 @@ import sifac.comun.entidades.Documento;
 
 /**
  * Pruebas unitarias del ServicioFacturacion. Verifica los 7 criterios de la
- * rubrica del Laboratorio 2.
+ * rubrica del Laboratorio 2 y las pruebas de la Pila de la semana 5.
  */
 public class ServicioFacturacionTest {
 
@@ -21,6 +21,7 @@ public class ServicioFacturacionTest {
         );
     }
 
+    // --- PRUEBAS DE LA SEMANA 2 ---
     @Test
     public void facturaContadoAplicaImpuestoYDescuento() {
         // 1. PREPARAR
@@ -108,7 +109,7 @@ public class ServicioFacturacionTest {
         ServicioFacturacion servicio = crearServicio();
         Documento factura = servicio.abrirFactura("1-1111", "CONTADO");
 
-        // 2. EJECUTAR y 3. VERIFICAR (la excepcion esperada esta en @Test)
+        // 2. EJECUTAR y 3. VERIFICAR
         servicio.agregarLinea(factura, "PVC-050", 0);
     }
 
@@ -117,7 +118,44 @@ public class ServicioFacturacionTest {
         // 1. PREPARAR
         ServicioFacturacion servicio = crearServicio();
 
-        // 2. EJECUTAR y 3. VERIFICAR (la excepcion esperada esta en @Test)
+        // 2. EJECUTAR y 3. VERIFICAR
         servicio.abrirFactura("9-9999", "CONTADO");
+    }
+
+    // --- NUEVAS PRUEBAS DE LA SEMANA 5 (LA PILA) ---
+    @Test
+    public void deshacerRetiraLaUltimaLinea() {
+        // 1. PREPARAR
+        ServicioFacturacion servicio = crearServicio();
+        Documento factura = servicio.abrirFactura("1-1111", "CONTADO");
+
+        // Agregamos dos líneas. (Si no tienes el código CEM-50 en tu RepositorioProductosMemoria, 
+        // simplemente agrega dos veces PVC-050 o cualquier otro producto que sí tengas).
+        servicio.agregarLinea(factura, "PVC-050", 10);
+        servicio.agregarLinea(factura, "PVC-050", 2);
+
+        double subtotalAntes = factura.getSubtotal();
+
+        // 2. EJECUTAR (Deshacemos la última línea agregada)
+        boolean resultado = servicio.deshacerUltimaLinea();
+
+        // 3. VERIFICAR
+        assertTrue("Debe devolver true al deshacer exitosamente", resultado);
+        assertTrue("El subtotal debe bajar al deshacer la línea", factura.getSubtotal() < subtotalAntes);
+        assertEquals("Debe quedar exactamente 1 línea en la factura", 1, factura.getLineas().size());
+    }
+
+    @Test
+    public void deshacerSinNadaDevuelveFalse() {
+        // 1. PREPARAR
+        ServicioFacturacion servicio = crearServicio();
+        servicio.abrirFactura("1-1111", "CONTADO");
+
+        // No agregamos ninguna línea.
+        // 2. EJECUTAR
+        boolean resultado = servicio.deshacerUltimaLinea();
+
+        // 3. VERIFICAR
+        assertFalse("Debe devolver false al intentar deshacer sobre una factura vacía", resultado);
     }
 }

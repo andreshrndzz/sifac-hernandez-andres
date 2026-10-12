@@ -1,6 +1,7 @@
 package sifac.comun.logica;
 
 import java.util.List;
+import java.util.Stack; // <-- IMPORTANTE: Esto es necesario para usar la Pila
 import sifac.comun.datos.RepositorioClientes;
 import sifac.comun.datos.RepositorioProductos;
 import sifac.comun.entidades.Cliente;
@@ -11,9 +12,9 @@ import sifac.comun.entidades.NotaCredito;
 import sifac.comun.entidades.Producto;
 
 /**
- * Capa logica del sistema SIFAC.
- * Coordina las operaciones de facturacion usando los repositorios inyectados.
- * RESTRICCION: esta clase NO contiene salida a consola.
+ * Capa logica del sistema SIFAC. Coordina las operaciones de facturacion usando
+ * los repositorios inyectados. RESTRICCION: esta clase NO contiene salida a
+ * consola.
  */
 public class ServicioFacturacion {
 
@@ -22,12 +23,12 @@ public class ServicioFacturacion {
     private int consecutivoContado;
     private int consecutivoCredito;
     private int consecutivoNota;
+    
+    // NUEVO ATRIBUTO: La Pila de Deshacer (LIFO) de la Parte 1
+    private Stack<Documento> pilaDeshacer;
 
     /**
      * Inyeccion por constructor: recibe los repositorios desde afuera.
-     *
-     * @param repoClientes repositorio de clientes
-     * @param repoProductos repositorio de productos
      */
     public ServicioFacturacion(RepositorioClientes repoClientes, RepositorioProductos repoProductos) {
         this.repoClientes = repoClientes;
@@ -35,17 +36,9 @@ public class ServicioFacturacion {
         this.consecutivoContado = 0;
         this.consecutivoCredito = 0;
         this.consecutivoNota = 0;
+        this.pilaDeshacer = new Stack<>(); // <-- Inicializamos la Pila
     }
 
-    /**
-     * Abre una factura de contado o credito segun la forma de pago.
-     * Busca el cliente por cedula y genera un numero correlativo por tipo.
-     *
-     * @param cedula cedula del cliente
-     * @param forma "CONTADO" o "CREDITO"
-     * @return el documento creado
-     * @throws IllegalArgumentException si el cliente no existe
-     */
     public Documento abrirFactura(String cedula, String forma) {
         Cliente cliente = repoClientes.buscarPorCedula(cedula);
         if (cliente == null) {
@@ -63,13 +56,6 @@ public class ServicioFacturacion {
         }
     }
 
-    /**
-     * Abre una nota de credito para el cliente indicado.
-     *
-     * @param cedula cedula del cliente
-     * @return la nota de credito creada
-     * @throws IllegalArgumentException si el cliente no existe
-     */
     public Documento abrirNotaCredito(String cedula) {
         Cliente cliente = repoClientes.buscarPorCedula(cedula);
         if (cliente == null) {
@@ -81,28 +67,36 @@ public class ServicioFacturacion {
     }
 
     /**
-     * Agrega una linea de detalle al documento.
-     * Valida que la cantidad sea mayor que cero (regla de negocio).
-     *
-     * @param d documento al que se agrega la linea
-     * @param codigo codigo del producto
-     * @param cantidad cantidad a agregar
-     * @throws IllegalArgumentException si la cantidad es menor o igual a cero
+     * Agrega una linea de detalle al documento. 
+     * Además, APILA la acción para poder deshacerla (Parte 1 del lab).
      */
     public void agregarLinea(Documento d, String codigo, int cantidad) {
         if (cantidad <= 0) {
             throw new IllegalArgumentException("Cantidad invalida");
         }
         Producto producto = repoProductos.buscarPorCodigo(codigo);
+        if (producto == null) {
+            throw new IllegalArgumentException("Producto no encontrado");
+        }
         d.agregarLinea(producto, cantidad);
+        
+        // CADA VEZ QUE AGREGAMOS, APILAMOS EL DOCUMENTO EN LA CIMA
+        pilaDeshacer.push(d);
     }
 
     /**
-     * Calcula el cierre de caja sumando polimorficamente los totales.
-     *
-     * @param delDia lista de documentos del dia
-     * @return la suma de los totales
+     * Retira la última línea del último documento modificado.
+     * Si la pila está vacía, devuelve false.
      */
+    public boolean deshacerUltimaLinea() {
+        if (pilaDeshacer.isEmpty()) {
+            return false;
+        }
+        // Desapilamos (LIFO - Last In, First Out)
+        Documento d = pilaDeshacer.pop();
+        return d.eliminarUltimaLinea();
+    }
+
     public double cerrarCaja(List<Documento> delDia) {
         double total = 0;
         for (Documento d : delDia) {

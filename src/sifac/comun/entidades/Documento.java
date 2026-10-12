@@ -46,6 +46,18 @@ public abstract class Documento {
     public void agregarLinea(Producto p, int cantidad) {
         lineas.add(new LineaDetalle(p, cantidad));
     }
+    
+    /**
+     * Elimina la última línea de detalle agregada al documento.
+     * Retorna true si se eliminó alguna, false si no había líneas.
+     */
+    public boolean eliminarUltimaLinea() {
+        if (lineas.isEmpty()) {
+            return false;
+        }
+        lineas.remove(lineas.size() - 1);
+        return true;
+    }
 
     /**
      * Devuelve una vista no modificable de la lista de líneas de detalle.
