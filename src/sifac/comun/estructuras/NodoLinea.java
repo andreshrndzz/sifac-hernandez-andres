@@ -2,6 +2,10 @@ package sifac.comun.estructuras;
 
 import sifac.comun.entidades.LineaDetalle;
 
+/**
+ * Nodo de la lista enlazada simple para lineas de detalle.
+ * Guarda una LineaDetalle y la referencia al siguiente nodo.
+ */
 public class NodoLinea {
 
     private LineaDetalle dato;
@@ -14,6 +18,10 @@ public class NodoLinea {
 
     public LineaDetalle getDato() {
         return dato;
+    }
+
+    public void setDato(LineaDetalle dato) {
+        this.dato = dato;
     }
 
     public NodoLinea getSiguiente() {
