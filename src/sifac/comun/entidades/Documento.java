@@ -10,12 +10,12 @@ import java.util.List;
  * Justificación: Una línea de detalle no significa nada sin su documento.
  * El documento crea las líneas y, si este se elimina, sus partes mueren con él.
  */
-
 /**
  * Clase abstracta que representa un documento comercial de la ferretería.
  * Define la estructura común y delega el cálculo del total a las subclases.
  */
-public abstract class Documento {
+// 1. AHORA IMPLEMENTA Comparable PARA PODER ORDENARSE
+public abstract class Documento implements Comparable<Documento> {
 
     protected String numero;
     protected LocalDate fecha;
@@ -23,8 +23,8 @@ public abstract class Documento {
     private List<LineaDetalle> lineas;
 
     /**
-     * Constructor que recibe el número y el cliente.
-     * La fecha se fija automáticamente con la fecha del día.
+     * Constructor que recibe el número y el cliente. La fecha se fija
+     * automáticamente con la fecha del día.
      *
      * @param numero número del documento
      * @param cliente cliente asociado al documento
@@ -37,8 +37,8 @@ public abstract class Documento {
     }
 
     /**
-     * Agrega una línea de detalle al documento.
-     * La línea se crea internamente (composición): el documento construye sus propias partes.
+     * Agrega una línea de detalle al documento. La línea se crea internamente
+     * (composición): el documento construye sus propias partes.
      *
      * @param p producto a agregar
      * @param cantidad cantidad del producto
@@ -46,10 +46,10 @@ public abstract class Documento {
     public void agregarLinea(Producto p, int cantidad) {
         lineas.add(new LineaDetalle(p, cantidad));
     }
-    
+
     /**
-     * Elimina la última línea de detalle agregada al documento.
-     * Retorna true si se eliminó alguna, false si no había líneas.
+     * Elimina la última línea de detalle agregada al documento. Retorna true si
+     * se eliminó alguna, false si no había líneas.
      */
     public boolean eliminarUltimaLinea() {
         if (lineas.isEmpty()) {
@@ -61,7 +61,8 @@ public abstract class Documento {
 
     /**
      * Devuelve una vista no modificable de la lista de líneas de detalle.
-     * Protege la composición: nadie desde fuera puede agregar ni eliminar líneas directamente.
+     * Protege la composición: nadie desde fuera puede agregar ni eliminar
+     * líneas directamente.
      *
      * @return lista no modificable de líneas de detalle
      */
@@ -83,7 +84,8 @@ public abstract class Documento {
     }
 
     /**
-     * Devuelve una descripción del documento con número, fecha y nombre del cliente.
+     * Devuelve una descripción del documento con número, fecha y nombre del
+     * cliente.
      *
      * @return descripción del documento
      */
@@ -92,9 +94,29 @@ public abstract class Documento {
     }
 
     /**
-     * Método abstracto que cada tipo de documento implementa con su propia fórmula.
+     * Método abstracto que cada tipo de documento implementa con su propia
+     * fórmula.
      *
      * @return el total calculado según el tipo de documento
      */
     public abstract double calcularTotal();
+
+    // ====================================================================
+    // NUEVOS MÉTODOS DEL LABORATORIO 6: ORDENAMIENTO E IMPRESIÓN
+    // ====================================================================
+    /**
+     * Define el orden natural del documento: por su número (código).
+     */
+    @Override
+    public int compareTo(Documento otro) {
+        return this.numero.compareTo(otro.numero);
+    }
+
+    /**
+     * Permite visualizar el documento en las impresiones de consola.
+     */
+    @Override
+    public String toString() {
+        return String.format("%-10s %-10s %10.2f", numero, getClass().getSimpleName(), calcularTotal());
+    }
 }
