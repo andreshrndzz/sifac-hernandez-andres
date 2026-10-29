@@ -7,14 +7,11 @@ import java.net.Socket;
 
 public class ClienteConsulta {
 
-    // Cambia este puerto a 5050 (para probar ServidorSecuencial) o 5051 (para probar ServidorConcurrente)
-    public static int PUERTO_PRUEBA = 5050;
+    public static int PUERTO_PRUEBA = 5051;
 
     public static void consultar(String etiqueta, int puerto, String... cedulas) {
         long inicio = System.currentTimeMillis();
-        try (Socket socket = new Socket("localhost", puerto);
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+        try (Socket socket = new Socket("localhost", puerto); PrintWriter out = new PrintWriter(socket.getOutputStream(), true); BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             for (String cedula : cedulas) {
                 out.println(cedula);
