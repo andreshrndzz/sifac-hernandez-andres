@@ -4,3 +4,5 @@ nbproject/private/
 *.class
 *.jar
 pdf/
+padron_completo/
+*.txt
