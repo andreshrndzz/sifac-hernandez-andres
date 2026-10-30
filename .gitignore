@@ -5,4 +5,6 @@ nbproject/private/
 *.jar
 pdf/
 padron_completo/
-*.txt
+PADRON_COMPLETO.txt
+PADRON_SINTETICO.txt
+Distelec.txt

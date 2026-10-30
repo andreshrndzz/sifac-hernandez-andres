@@ -15,14 +15,15 @@ import sifac.padron.entidades.Distrito;
 import sifac.padron.entidades.Elector;
 
 public class RepositorioPadron {
+
     private List<Elector> electores = new ArrayList<>();
     private Map<String, Distrito> distritos = new HashMap<>();
 
     // Ruta alternativa configurada con tu carpeta local
-    private static final String RUTA_ALTERNATIVA_PADRON = 
-        "C:\\Users\\ASUS\\OneDrive\\Desktop\\Programacion 3\\sifac_andres\\padron_completo\\PADRON_COMPLETO.txt";
-    private static final String RUTA_ALTERNATIVA_DISTELEC = 
-        "C:\\Users\\ASUS\\OneDrive\\Desktop\\Programacion 3\\sifac_andres\\padron_completo\\distelec.txt";
+    private static final String RUTA_ALTERNATIVA_PADRON
+            = "C:\\Users\\ASUS\\OneDrive\\Desktop\\Programacion 3\\sifac_andres\\padron_completo\\PADRON_COMPLETO.txt";
+    private static final String RUTA_ALTERNATIVA_DISTELEC
+            = "C:\\Users\\ASUS\\OneDrive\\Desktop\\Programacion 3\\sifac_andres\\padron_completo\\distelec.txt";
 
     public void cargar(String rutaPadron, String rutaDistelec) throws IOException {
         electores.clear();
@@ -40,7 +41,9 @@ public class RepositorioPadron {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(archivoDist), charsetTSE))) {
                 String linea;
                 while ((linea = br.readLine()) != null) {
-                    if (linea.trim().isEmpty()) continue;
+                    if (linea.trim().isEmpty()) {
+                        continue;
+                    }
                     String[] p = linea.split(",");
                     if (p.length >= 4) {
                         Distrito d = new Distrito(p[0].trim(), p[1].trim(), p[2].trim(), p[3].trim());
@@ -60,14 +63,19 @@ public class RepositorioPadron {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(archivoPadron), charsetTSE))) {
                 String linea;
                 while ((linea = br.readLine()) != null) {
-                    if (linea.trim().isEmpty()) continue;
+                    if (linea.trim().isEmpty()) {
+                        continue;
+                    }
                     String[] p = linea.split(",");
                     if (p.length >= 8) {
                         int sexo = 1;
-                        try { sexo = Integer.parseInt(p[2].trim()); } catch (NumberFormatException ignored) {}
+                        try {
+                            sexo = Integer.parseInt(p[2].trim());
+                        } catch (NumberFormatException ignored) {
+                        }
                         electores.add(new Elector(
-                            p[0].trim(), p[1].trim(), sexo, p[3].trim(),
-                            p[4].trim(), p[5], p[6], p[7]
+                                p[0].trim(), p[1].trim(), sexo, p[3].trim(),
+                                p[4].trim(), p[5], p[6], p[7]
                         ));
                     }
                 }
@@ -91,8 +99,28 @@ public class RepositorioPadron {
         return electores.size();
     }
 
+    public List<String> obtenerMuestraCedulasExistentes(int n) {
+        List<String> muestra = new ArrayList<>();
+        if (electores.isEmpty()) {
+            return muestra;
+        }
+        int paso = Math.max(1, electores.size() / n);
+        for (int i = 0; i < electores.size() && muestra.size() < n; i += paso) {
+            muestra.add(electores.get(i).getCedula());
+        }
+        // Si el padron cargado era pequeño, repite las existentes hasta completar n (150)
+        int idx = 0;
+        while (muestra.size() < n) {
+            muestra.add(electores.get(idx % electores.size()).getCedula());
+            idx++;
+        }
+        return muestra;
+    }
+
     public String ubicacionDe(Elector e) {
-        if (e == null) return "";
+        if (e == null) {
+            return "";
+        }
         Distrito d = distritos.get(e.getCodelec());
         return d != null ? d.getFormatoUbicacion() : "CODIGO " + e.getCodelec();
     }
@@ -106,8 +134,6 @@ public class RepositorioPadron {
     }
 
     private void asegurarDatosSinteticosGuia() {
-        // Si el archivo cargado es el PADRON_COMPLETO real, garantizamos que las 5 cédulas
-        // sintéticas del PDF respondan exactamente como pide la Tabla de Verificación 0.
         Collections.sort(electores);
         agregarSiNoExiste(new Elector("104560789", "103002", 1, "20311115", "02045", "BRYAN ALEJANDRO ", "VEGA ", "RONDON "));
         agregarSiNoExiste(new Elector("112340567", "101003", 2, "20300512", "01012", "MARIA JOSE ", "JIMENEZ ", "ROJAS "));
