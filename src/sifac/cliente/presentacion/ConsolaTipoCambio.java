@@ -2,13 +2,13 @@
 // y ajuste el formato de salida de la factura para usar la tasa de venta en dolares.
 package sifac.cliente.presentacion;
 
-import sifac.servidor.datos.TipoCambioBCCR;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import sifac.comun.entidades.TipoCambio;
 import sifac.servidor.datos.RepositorioTipoCambio;
+import sifac.servidor.datos.TipoCambioBCCR;
 import sifac.servidor.datos.TipoCambioEnMemoria;
 import sifac.servidor.logica.ServicioTipoCambio;
 
@@ -19,9 +19,14 @@ public class ConsolaTipoCambio {
     public static void main(String[] args) {
         Locale.setDefault(Locale.US);
 
-        // Lo unico que cambia en todo el sistema:
+        // =========================================================================
+        // Lo unico que cambia en todo el sistema (Fase 5 - API SDDE del BCCR):
+        // 1. Usa TipoCambioEnMemoria para los Puestos de Control 2, 3 y 4 (da 61608.00)
+        // 2. Usa TipoCambioBCCR para consultar en vivo la API REST SDDE con Bearer Token
+        // =========================================================================
         // RepositorioTipoCambio repo = new TipoCambioEnMemoria();
         RepositorioTipoCambio repo = new TipoCambioBCCR("hernandezp.and@gmail.com", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJCQ0NSLVNEREUiLCJzdWIiOiJoZXJuYW5kZXpwLmFuZEBnbWFpbC5jb20iLCJhdWQiOiJTRERFLVNpdGlvRXh0ZXJubyIsImV4cCI6MjUzNDAyMzAwODAwLCJuYmYiOjE3NTgyNjA0NDEsImlhdCI6MTc1ODI2MDQ0MSwianRpIjoiMGM5NGUyZmEtYzQwZS00MmJjLWJlOTctNjhmOWNhNzcwNmQ2IiwiZW1haWwiOiJoZXJuYW5kZXpwLmFuZEBnbWFpbC5jb20ifQ.GC_T8hSZ6-0vb_bYJQ1Pt6EHCU3Ug1z3QD9kCIQo7DM");
+
         ServicioTipoCambio servicio = new ServicioTipoCambio(repo);
 
         Scanner sc = new Scanner(System.in);
@@ -36,9 +41,7 @@ public class ConsolaTipoCambio {
             System.out.print("Seleccione una opcion: ");
 
             String entrada = sc.nextLine().trim();
-            if (entrada.isEmpty()) {
-                continue;
-            }
+            if (entrada.isEmpty()) continue;
             try {
                 opcion = Integer.parseInt(entrada);
             } catch (NumberFormatException e) {
@@ -98,9 +101,7 @@ public class ConsolaTipoCambio {
             while (true) {
                 System.out.print("Descripcion del producto (o ENTER para terminar): ");
                 String desc = sc.nextLine().trim();
-                if (desc.isEmpty()) {
-                    break;
-                }
+                if (desc.isEmpty()) break;
 
                 System.out.print("Cantidad: ");
                 int cant = Integer.parseInt(sc.nextLine().trim());
@@ -129,7 +130,7 @@ public class ConsolaTipoCambio {
     }
 
     private static double agregarLineaFactura(List<String> salida, String desc, int cant,
-            String moneda, double precio, ServicioTipoCambio servicio) {
+                                              String moneda, double precio, ServicioTipoCambio servicio) {
         double importeColones;
         if (moneda.equals("$")) {
             importeColones = servicio.convertirAColonesParaPagar(cant * precio);
