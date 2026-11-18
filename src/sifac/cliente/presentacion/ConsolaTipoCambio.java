@@ -24,8 +24,8 @@ public class ConsolaTipoCambio {
         // 1. Usa TipoCambioEnMemoria para los Puestos de Control 2, 3 y 4 (da 61608.00)
         // 2. Usa TipoCambioBCCR para consultar en vivo la API REST SDDE con Bearer Token
         // =========================================================================
-        // RepositorioTipoCambio repo = new TipoCambioEnMemoria();
-        RepositorioTipoCambio repo = new TipoCambioBCCR("hernandezp.and@gmail.com", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJCQ0NSLVNEREUiLCJzdWIiOiJoZXJuYW5kZXpwLmFuZEBnbWFpbC5jb20iLCJhdWQiOiJTRERFLVNpdGlvRXh0ZXJubyIsImV4cCI6MjUzNDAyMzAwODAwLCJuYmYiOjE3NTgyNjA0NDEsImlhdCI6MTc1ODI2MDQ0MSwianRpIjoiMGM5NGUyZmEtYzQwZS00MmJjLWJlOTctNjhmOWNhNzcwNmQ2IiwiZW1haWwiOiJoZXJuYW5kZXpwLmFuZEBnbWFpbC5jb20ifQ.GC_T8hSZ6-0vb_bYJQ1Pt6EHCU3Ug1z3QD9kCIQo7DM");
+        RepositorioTipoCambio repo = new TipoCambioEnMemoria();
+        // RepositorioTipoCambio repo = new TipoCambioBCCR("hernandezp.and@gmail.com", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJCQ0NSLVNEREUiLCJzdWIiOiJoZXJuYW5kZXpwLmFuZEBnbWFpbC5jb20iLCJhdWQiOiJTRERFLVNpdGlvRXh0ZXJubyIsImV4cCI6MjUzNDAyMzAwODAwLCJuYmYiOjE3NTgyNjA0NDEsImlhdCI6MTc1ODI2MDQ0MSwianRpIjoiMGM5NGUyZmEtYzQwZS00MmJjLWJlOTctNjhmOWNhNzcwNmQ2IiwiZW1haWwiOiJoZXJuYW5kZXpwLmFuZEBnbWFpbC5jb20ifQ.GC_T8hSZ6-0vb_bYJQ1Pt6EHCU3Ug1z3QD9kCIQo7DM");
 
         ServicioTipoCambio servicio = new ServicioTipoCambio(repo);
 

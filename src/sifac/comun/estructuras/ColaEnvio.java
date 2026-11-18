@@ -30,12 +30,10 @@ public class ColaEnvio {
     }
 
     /**
-     * Agrega un documento al final de la cola usando la referencia fin.
-     * Restriccion: Cero ciclos (no recorre). Complejidad O(1).
-     *
-     * @param d documento a encolar
+     * Productor (Semanas 5 y 10): Agrega un documento al final de la cola en O(1)
+     * sin ciclos y despierta al hilo consumidor con notifyAll().
      */
-    public void encolar(Documento d) {
+    public synchronized void encolar(Documento d) {
         NodoDoc nuevo = new NodoDoc(d);
         if (frente == null) {
             frente = nuevo;
@@ -45,24 +43,20 @@ public class ColaEnvio {
             fin = nuevo;
         }
         cantidad++;
+        notifyAll();
     }
 
     /**
-     * Retira y devuelve el documento del frente de la cola.
-     * Devuelve null si la cola esta vacia (convencion del curso).
-     * Limpia la referencia fin si la cola queda vacia (Seccion 2.4).
-     *
-     * @return el documento desencolado o null si esta vacia
+     * Retira y devuelve el documento del frente de la cola, o null si está vacía.
+     * Limpia la referencia fin cuando sale el último elemento (Sección 2.4).
      */
-    public Documento desencolar() {
+    public synchronized Documento desencolar() {
         if (frente == null) {
             return null;
         }
         Documento d = frente.getDato();
         frente = frente.getSiguiente();
 
-        // CORRECCION APLICADA (2.4): Si salio el ultimo elemento, 
-        // limpiamos la referencia 'fin' para mantener consistencia.
         if (frente == null) {
             fin = null;
         }
@@ -72,30 +66,36 @@ public class ColaEnvio {
     }
 
     /**
-     * Devuelve el documento del frente sin retirarlo, o null si esta vacia.
-     *
-     * @return el documento del frente o null si esta vacia
+     * Consumidor bloqueante (Semana 10): Espera con wait() mientras la cola esté
+     * vacía y desencola apenas el productor encole un documento.
      */
-    public Documento verFrente() {
+    public synchronized Documento esperarYDesencolar() throws InterruptedException {
+        while (frente == null) {
+            wait();
+        }
+        return desencolar();
+    }
+
+    public synchronized Documento verFrente() {
         if (frente == null) {
             return null;
         }
         return frente.getDato();
     }
 
-    public boolean estaVacia() {
+    public synchronized boolean estaVacia() {
         return frente == null;
     }
 
-    public int tamaño() {
+    public synchronized int tamaño() {
         return cantidad;
     }
 
-    public int tamano() {
+    public synchronized int tamano() {
         return cantidad;
     }
 
-    public int getCantidad() {
+    public synchronized int getCantidad() {
         return cantidad;
     }
 }

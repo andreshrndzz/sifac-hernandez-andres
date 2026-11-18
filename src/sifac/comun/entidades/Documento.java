@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import sifac.comun.estructuras.HistorialEstados;
 
 /*
  * Relación Documento - LineaDetalle: COMPOSICIÓN.
@@ -14,17 +15,17 @@ import java.util.List;
  * Clase abstracta que representa un documento comercial de la ferretería.
  * Define la estructura común y delega el cálculo del total a las subclases.
  */
-// 1. AHORA IMPLEMENTA Comparable PARA PODER ORDENARSE
 public abstract class Documento implements Comparable<Documento> {
 
     protected String numero;
     protected LocalDate fecha;
     protected Cliente cliente;
     private List<LineaDetalle> lineas;
+    private HistorialEstados historial;
 
     /**
      * Constructor que recibe el número y el cliente. La fecha se fija
-     * automáticamente con la fecha del día.
+     * automáticamente con la fecha del día y el historial inicia en ABIERTO.
      *
      * @param numero número del documento
      * @param cliente cliente asociado al documento
@@ -34,6 +35,8 @@ public abstract class Documento implements Comparable<Documento> {
         this.cliente = cliente;
         this.fecha = LocalDate.now();
         this.lineas = new ArrayList<>();
+        this.historial = new HistorialEstados();
+        this.historial.registrarEstado("ABIERTO");
     }
 
     public String getNumero() {
@@ -42,6 +45,29 @@ public abstract class Documento implements Comparable<Documento> {
 
     public Cliente getCliente() {
         return cliente;
+    }
+
+    public LocalDate getFecha() {
+        return fecha;
+    }
+
+    /**
+     * Cambia el estado del documento agregando un nuevo nodo a su historial (Semana 3).
+     */
+    public void cambiarEstado(String nuevoEstado) {
+        this.historial.registrarEstado(nuevoEstado);
+    }
+
+    public String getEstadoActual() {
+        return this.historial.getEstadoActual();
+    }
+
+    public String verHistorialEstados() {
+        return this.historial.verHistorial();
+    }
+
+    public HistorialEstados getHistorial() {
+        return this.historial;
     }
 
     /**
@@ -65,6 +91,16 @@ public abstract class Documento implements Comparable<Documento> {
         }
         lineas.remove(lineas.size() - 1);
         return true;
+    }
+
+    /**
+     * Devuelve la última línea agregada sin eliminarla, o null si no hay líneas.
+     */
+    public LineaDetalle getUltimaLinea() {
+        if (lineas.isEmpty()) {
+            return null;
+        }
+        return lineas.get(lineas.size() - 1);
     }
 
     /**
@@ -109,9 +145,6 @@ public abstract class Documento implements Comparable<Documento> {
      */
     public abstract double calcularTotal();
 
-    // ====================================================================
-    // NUEVOS MÉTODOS DEL LABORATORIO 6: ORDENAMIENTO E IMPRESIÓN
-    // ====================================================================
     /**
      * Define el orden natural del documento: por su número (código).
      */
@@ -125,6 +158,7 @@ public abstract class Documento implements Comparable<Documento> {
      */
     @Override
     public String toString() {
-        return String.format("%-10s %-10s %10.2f", numero, getClass().getSimpleName(), calcularTotal());
+        return String.format("%-10s %-15s %10.2f  [%s]",
+                numero, getClass().getSimpleName(), calcularTotal(), getEstadoActual());
     }
 }

@@ -1,29 +1,29 @@
 # SIFAC — Sistema de Facturación para Ferretería (`sifac_andres`)
 
-## Semana 11 (Laboratorio 10): Consulta al Padrón y Confirmación al Central por Sockets
+**Curso:** BIS06 · Programación III — Universidad Latina de Costa Rica  
+**Estudiante:** Andrés Hernández  
+**Docente:** Bryan Alejandro Vega Rondón  
+**Requisitos:** Java SE 17+, Apache NetBeans, JUnit 4/5
 
-### Orden de Arranque y Puertos
-1. **Servidor de Padrón (`sifac.padron.servidor.ServidorConcurrente`)**
-   - Puerto TCP: `5051` (flujos de red en `UTF-8`, lectura de archivos del TSE en `ISO-8859-15`).
-2. **Servidor Central de Demostración (`sifac.central.CentralDemo`)**
-   - Puerto TCP: `5052` (protocolo `REGISTRAR|id|monto` con respuestas `ACK|id` y `CONFLICTO|id`).
-3. **Cliente de Caja (`sifac.caja.ui.ConsolaCaja`)**
-   - Inyecta `RepositorioClientesPadron("localhost", 5051)` en `ServicioFacturacion` sin alterar la capa lógica.
+---
 
-### Comandos de Ejecución y Verificación
-Desde NetBeans (**Run File** `Shift + F6`) o por terminal desde la raíz del proyecto:
+## 1. Arquitectura en Capas y Estructura de Paquetes
 
-```bash
-# 1. Iniciar el servidor concurrente de padrón (Puerto 5051)
-java -cp build/classes sifac.padron.servidor.ServidorConcurrente
-
-# 2. Ejecutar la Consola de Caja (menú interactivo o consulta por argumentos)
-java -cp build/classes sifac.caja.ui.ConsolaCaja localhost 5051 104560789
-java -cp build/classes sifac.caja.ui.ConsolaCaja localhost 5051 999999999
-
-# 3. Ejecutar las 8 verificaciones automatizadas de fallos de red y protocolo
-java -cp build/classes sifac.pruebas.VerificarPadron
-
-# 4. Iniciar CentralDemo (Puerto 5052) y probar envío con confirmación ACK y conflicto
-java -cp build/classes sifac.central.CentralDemo
-java -cp build/classes sifac.caja.ui.EnviarDocumento
+```text
+src/sifac/
+├── comun/
+│   ├── entidades/      Documento (abstracta), FacturaContado, FacturaCredito,
+│   │                   NotaCredito, Proforma, LineaDetalle, Producto, Cliente,
+│   │                   Cajero, Sucursal, TipoCambio
+│   ├── estructuras/    NodoEstado, HistorialEstados (S3-S4), NodoLinea, ListaLineas (S4/Tarea 1),
+│   │                   PilaOperaciones (S5), NodoDoc, ColaEnvio (S5/S10)
+│   ├── datos/          RepositorioClientes, RepositorioProductos (interfaces),
+│   │                   RepositorioClientesMemoria, RepositorioProductosMemoria,
+│   │                   RepositorioClientesPadron, ProtocoloPadron, ServicioPadronException (S11)
+│   └── logica/         ServicioFacturacion (reglas de negocio, cero System.out)
+├── caja/ui/            ConsolaCaja (menú de los 9 requisitos funcionales), EnviarDocumento
+├── cliente/presentacion/ ConsolaTipoCambio (módulo de tipo de cambio BCCR / simulado en memoria)
+├── servidor/           RepositorioTipoCambio, TipoCambioEnMemoria, TipoCambioBCCR, ServicioTipoCambio
+├── padron/             ServidorConcurrente (puerto 5051), AtencionCliente, RepositorioPadron, ClienteMasivo
+├── central/            CentralDemo (puerto 5052, confirmación ACK e idempotencia)
+└── pruebas/            DemoCondicionCarrera (Semana 9) y VerificarPadron (8 verificaciones Semana 11)

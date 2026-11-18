@@ -14,13 +14,21 @@ public class RepositorioClientesMemoria implements RepositorioClientes {
 
     public RepositorioClientesMemoria() {
         clientes = new HashMap<>();
+        // Clientes de las pruebas unitarias de Semana 2
         clientes.put("1-1111", new Cliente("1-1111", "Rafael Mora"));
         clientes.put("2-2222", new Cliente("2-2222", "Constructora XYZ"));
         clientes.put("3-3333", new Cliente("3-3333", "Dona Marta"));
+        // Clientes con formato de 9 digitos para demostraciones en consola
+        clientes.put("104560789", new Cliente("104560789", "MARTA FLORES ORTIZ"));
+        clientes.put("112340567", new Cliente("112340567", "MARIA JOSE JIMENEZ ROJAS"));
+        clientes.put("203450678", new Cliente("203450678", "CARLOS MORA VARGAS"));
     }
 
     @Override
     public Cliente buscarPorCedula(String cedula) {
-        return clientes.get(cedula);
+        if (cedula == null) {
+            return null;
+        }
+        return clientes.get(cedula.trim());
     }
 }
