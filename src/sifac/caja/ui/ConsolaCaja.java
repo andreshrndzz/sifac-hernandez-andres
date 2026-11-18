@@ -3,6 +3,11 @@ package sifac.caja.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import sifac.comun.datos.RepositorioClientes;
+import sifac.comun.datos.RepositorioClientesPadron;
+import sifac.comun.datos.RepositorioProductos;
+import sifac.comun.datos.RepositorioProductosMemoria;
+import sifac.comun.datos.ServicioPadronException;
 import sifac.comun.entidades.Documento;
 import sifac.comun.logica.ServicioFacturacion;
 
@@ -46,26 +51,36 @@ public class ConsolaCaja {
 
             switch (opcion) {
                 case "1":
-                    System.out.print("Cedula del cliente: ");
+                    System.out.print("Cedula del cliente (9 digitos): ");
                     String cedula = sc.nextLine().trim();
                     System.out.print("Forma de pago (CONTADO/CREDITO): ");
                     String forma = sc.nextLine().trim();
                     try {
                         actual = servicio.abrirFactura(cedula, forma);
+                        System.out.println("CLIENTE | " + actual.getCliente().getCedula()
+                                + " | " + actual.getCliente().getNombre());
                         System.out.println("Documento abierto: " + actual.describir());
+                    } catch (ServicioPadronException e) {
+                        System.out.println("PADRON NO DISPONIBLE | " + e.getMessage()
+                                + ". Verifique el servidor e intente de nuevo.");
                     } catch (IllegalArgumentException e) {
-                        System.out.println("Error: " + e.getMessage());
+                        System.out.println("AVISO | " + e.getMessage());
                     }
                     break;
 
                 case "2":
-                    System.out.print("Cedula del cliente: ");
+                    System.out.print("Cedula del cliente (9 digitos): ");
                     String cedNota = sc.nextLine().trim();
                     try {
                         actual = servicio.abrirNotaCredito(cedNota);
+                        System.out.println("CLIENTE | " + actual.getCliente().getCedula()
+                                + " | " + actual.getCliente().getNombre());
                         System.out.println("Nota de credito abierta: " + actual.describir());
+                    } catch (ServicioPadronException e) {
+                        System.out.println("PADRON NO DISPONIBLE | " + e.getMessage()
+                                + ". Verifique el servidor e intente de nuevo.");
                     } catch (IllegalArgumentException e) {
-                        System.out.println("Error: " + e.getMessage());
+                        System.out.println("AVISO | " + e.getMessage());
                     }
                     break;
 
@@ -122,11 +137,32 @@ public class ConsolaCaja {
 
     /**
      * Punto de entrada de la aplicacion de caja.
+     * Si recibe argumentos (host puerto cedula), ejecuta la consulta directa.
+     * Si no recibe argumentos, abre el menu interactivo.
      */
     public static void main(String[] args) {
-        sifac.comun.datos.RepositorioClientesMemoria repoClientes = new sifac.comun.datos.RepositorioClientesMemoria();
-        sifac.comun.datos.RepositorioProductosMemoria repoProductos = new sifac.comun.datos.RepositorioProductosMemoria();
+        String host = args.length > 0 ? args[0] : "localhost";
+        int puerto = args.length > 1 ? Integer.parseInt(args[1]) : 5051;
+
+        // SUSTITUCION DE SEMANA 11: Una sola linea cambia la fuente de datos
+        // Antes (Semana 2): RepositorioClientes repoClientes = new RepositorioClientesMemoria();
+        RepositorioClientes repoClientes = new RepositorioClientesPadron(host, puerto);
+        RepositorioProductos repoProductos = new RepositorioProductosMemoria();
         ServicioFacturacion servicio = new ServicioFacturacion(repoClientes, repoProductos);
+
+        if (args.length >= 3) {
+            String cedula = args[2];
+            try {
+                Documento doc = servicio.abrirFactura(cedula, "CONTADO");
+                System.out.println("CLIENTE | " + doc.getCliente().getCedula()
+                        + " | " + doc.getCliente().getNombre());
+            } catch (ServicioPadronException e) {
+                System.out.println("PADRON NO DISPONIBLE | " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.out.println("AVISO | " + e.getMessage());
+            }
+            return;
+        }
 
         ConsolaCaja consola = new ConsolaCaja(servicio);
         Scanner sc = new Scanner(System.in);

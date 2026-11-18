@@ -36,6 +36,14 @@ public abstract class Documento implements Comparable<Documento> {
         this.lineas = new ArrayList<>();
     }
 
+    public String getNumero() {
+        return numero;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
     /**
      * Agrega una línea de detalle al documento. La línea se crea internamente
      * (composición): el documento construye sus propias partes.
